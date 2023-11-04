@@ -17,7 +17,6 @@ func NewEventDispatcher() *EventDispatcher {
 	eventDispatcher := EventDispatcher{
 		handlers: make(map[string][]EventHandlerInterface),
 	}
-
 	return &eventDispatcher
 }
 
@@ -29,7 +28,6 @@ func (ed *EventDispatcher) Register(eventName string, handler EventHandlerInterf
 			}
 		}
 	}
-
 	ed.handlers[eventName] = append(ed.handlers[eventName], handler)
 	return nil
 }
@@ -37,15 +35,12 @@ func (ed *EventDispatcher) Register(eventName string, handler EventHandlerInterf
 func (ed *EventDispatcher) Dispatch(event Event) error {
 	if handlers, ok := ed.handlers[event.GetName()]; ok {
 		wg := &sync.WaitGroup{}
-
 		for _, handler := range handlers {
 			wg.Add(1)
 			go handler.Handle(event, wg)
 		}
-
 		wg.Wait()
 	}
-
 	return nil
 }
 
@@ -57,7 +52,6 @@ func (ed *EventDispatcher) Has(eventName string, handler EventHandlerInterface) 
 			}
 		}
 	}
-
 	return false
 }
 
@@ -70,10 +64,10 @@ func (ed *EventDispatcher) Remove(eventName string, handler EventHandlerInterfac
 			}
 		}
 	}
-
 	return nil
 }
 
-func (ed *EventDispatcher) Clear() {
+func (ed *EventDispatcher) Clear() error {
 	ed.handlers = make(map[string][]EventHandlerInterface)
+	return nil
 }
