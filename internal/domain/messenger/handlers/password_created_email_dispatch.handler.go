@@ -16,7 +16,8 @@ func NewPasswordCreatedEmailDispatchHandler() *PasswordCreatedEmailDispatchHandl
 
 func (h *PasswordCreatedEmailDispatchHandler) Handle(event events.Event, wg *sync.WaitGroup) {
 	if event.GetName() == domainEvents.PasswordCreatedEventName {
-		fmt.Println("Enviar email")
+		payload := event.GetPayload().(*domainEvents.PasswordCreatedEvent)
+		fmt.Println(payload.GetUnhash())
 	}
 	wg.Done()
 }

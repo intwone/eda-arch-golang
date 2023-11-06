@@ -2,6 +2,8 @@ package repositories
 
 import (
 	"github.com/intwone/eda-arch-golang/internal/domain/auth/entities"
+	"github.com/intwone/eda-arch-golang/internal/infra/database/gorm/models"
+	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +18,15 @@ func NewGORMPasswordRepository(db *gorm.DB) *GORMPasswordRepository {
 }
 
 func (r *GORMPasswordRepository) Save(password entities.PasswordEntity) (*entities.PasswordEntity, error) {
-	err := r.DB.Save(password).Error
+	passwordModel := models.PasswordModel{
+		ID:        uuid.UUID(password.ID),
+		Kind:      password.Kind,
+		Hash:      password.Hash,
+		IsActive:  password.IsActive,
+		CreatedAt: password.CreatedAt,
+		ContactID: password.ContactID,
+	}
+	err := r.DB.Create(passwordModel).Error
 	if err != nil {
 		return nil, err
 	}

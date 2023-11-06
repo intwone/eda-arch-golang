@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	uc "github.com/intwone/eda-arch-golang/internal/domain/auth/use_cases"
-	"github.com/intwone/eda-arch-golang/internal/domain/messenger"
+	messenger "github.com/intwone/eda-arch-golang/internal/domain/messenger/handlers"
 	domainEvents "github.com/intwone/eda-arch-golang/internal/domain/password/events"
 	"github.com/intwone/eda-arch-golang/internal/infra/database/gorm"
 	"github.com/intwone/eda-arch-golang/internal/infra/database/gorm/repositories"

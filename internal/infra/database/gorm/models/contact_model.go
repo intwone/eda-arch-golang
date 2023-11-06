@@ -3,13 +3,13 @@ package models
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/intwone/eda-arch-golang/internal/domain/auth/entities"
+	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
 type ContactModel struct {
-	ID         string                 `gorm:"column:contact_id;type:uuid;primaryKey;unique;not null"`
+	ID         uuid.UUID              `gorm:"column:contact_id;type:uuid;primaryKey;unique;not null"`
 	Status     entities.ContactStatus `gorm:"column:status;type:text;not null"`
 	Kind       entities.ContactKind   `gorm:"column:kind;type:text;not null"`
 	Value      string                 `gorm:"column:value;type:text;not null"`
