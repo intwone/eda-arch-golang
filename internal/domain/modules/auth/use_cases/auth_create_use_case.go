@@ -1,9 +1,9 @@
 package usecases
 
 import (
-	"github.com/intwone/eda-arch-golang/internal/domain/auth/entities"
-	"github.com/intwone/eda-arch-golang/internal/domain/auth/repositories"
-	domainEvents "github.com/intwone/eda-arch-golang/internal/domain/password/events"
+	"github.com/intwone/eda-arch-golang/internal/domain/modules/auth/entities"
+	domainEvents "github.com/intwone/eda-arch-golang/internal/domain/modules/password/events"
+	"github.com/intwone/eda-arch-golang/internal/domain/repositories"
 	"github.com/intwone/eda-arch-golang/internal/infra/hasher"
 	"github.com/intwone/eda-arch-golang/internal/utils"
 	"github.com/intwone/eda-arch-golang/pkg/events"

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	domainEvents "github.com/intwone/eda-arch-golang/internal/domain/password/events"
+	domainEvents "github.com/intwone/eda-arch-golang/internal/domain/modules/password/events"
 	"github.com/intwone/eda-arch-golang/pkg/events"
 )
 

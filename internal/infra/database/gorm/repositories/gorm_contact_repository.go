@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"github.com/intwone/eda-arch-golang/internal/domain/auth/entities"
+	"github.com/intwone/eda-arch-golang/internal/domain/modules/auth/entities"
 	"github.com/intwone/eda-arch-golang/internal/infra/database/gorm/models"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"

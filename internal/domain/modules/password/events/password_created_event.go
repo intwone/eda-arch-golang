@@ -1,6 +1,6 @@
 package events
 
-import "github.com/intwone/eda-arch-golang/internal/domain/auth/entities"
+import "github.com/intwone/eda-arch-golang/internal/domain/modules/auth/entities"
 
 var (
 	PasswordCreatedEventName = "password_created_event"
