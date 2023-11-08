@@ -4,16 +4,19 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
-	useCase "github.com/intwone/eda-arch-golang/internal/domain/modules/auth/use_cases"
-	messenger "github.com/intwone/eda-arch-golang/internal/domain/modules/messenger/handlers"
-	domainEvents "github.com/intwone/eda-arch-golang/internal/domain/modules/password/events"
-	"github.com/intwone/eda-arch-golang/internal/infra/database/gorm"
-	"github.com/intwone/eda-arch-golang/internal/infra/database/gorm/repositories"
-	"github.com/intwone/eda-arch-golang/internal/infra/hasher"
-	"github.com/intwone/eda-arch-golang/internal/main/config"
-	"github.com/intwone/eda-arch-golang/internal/main/routes"
-	controllers "github.com/intwone/eda-arch-golang/internal/presentation"
-	authControllers "github.com/intwone/eda-arch-golang/internal/presentation/auth/controllers"
+	config "github.com/intwone/eda-arch-golang/internal/private_config"
+	cryptography "github.com/intwone/eda-arch-golang/internal/private_cryptography/services"
+	"github.com/intwone/eda-arch-golang/internal/private_database/gorm"
+	"github.com/intwone/eda-arch-golang/internal/private_database/gorm/repositories"
+	hasher "github.com/intwone/eda-arch-golang/internal/private_hasher/services"
+	messengerHandlers "github.com/intwone/eda-arch-golang/internal/private_messenger/handlers"
+	useCase "github.com/intwone/eda-arch-golang/internal/public_auth/application/use_cases"
+	authDomainEvents "github.com/intwone/eda-arch-golang/internal/public_auth/events"
+	controllers "github.com/intwone/eda-arch-golang/internal/public_auth/presentation/controllers"
+	"github.com/intwone/eda-arch-golang/internal/public_auth/presentation/routes"
+	contactHandlers "github.com/intwone/eda-arch-golang/internal/public_contact/handlers"
+	passwordDomainEvents "github.com/intwone/eda-arch-golang/internal/public_password/events"
+	userHandlers "github.com/intwone/eda-arch-golang/internal/public_user/handlers"
 	"github.com/intwone/eda-arch-golang/pkg/events"
 )
 
@@ -39,23 +42,39 @@ func main() {
 
 	eventDispatcher := events.NewEventDispatcher()
 
-	passwordCreatedEmailDispatchHandler := messenger.NewPasswordCreatedEmailDispatchHandler()
-	eventDispatcher.Register(domainEvents.PasswordCreatedEventName, passwordCreatedEmailDispatchHandler)
-
+	// Repositories
 	contactRepository := repositories.NewGORMContactRepository(db)
 	passwordRepository := repositories.NewGORMPasswordRepository(db)
+	userRepository := repositories.NewGORMUserRepository(db)
 	bcryptHasher := hasher.NewBcryptHasher()
+	jwtCryptography := cryptography.NewJWTCryptography(env.JWT_SECRET)
 
+	// UseCases
 	authCreateUseCase := useCase.NewAuthCreateUseCase(eventDispatcher, contactRepository, passwordRepository, bcryptHasher)
-	authCreateController := authControllers.NewAuthCreateController(authCreateUseCase)
+	authenticateUseCase := useCase.NewAuthenticateUseCase(eventDispatcher, contactRepository, passwordRepository, userRepository, jwtCryptography, bcryptHasher)
+
+	// Events
+	passwordCreatedEmailDispatchHandler := messengerHandlers.NewPasswordCreatedEmailDispatchHandler()
+	eventDispatcher.Register(passwordDomainEvents.PasswordCreatedEventName, passwordCreatedEmailDispatchHandler)
+
+	contactStatusVerifiedHandler := contactHandlers.NewContactVerifiedHandler(contactRepository)
+	eventDispatcher.Register(authDomainEvents.AuthenticatedEventName, contactStatusVerifiedHandler)
+
+	userStatusVerifiedHandler := userHandlers.NewUserStatusVerifiedHandler(userRepository)
+	eventDispatcher.Register(authDomainEvents.AuthenticatedEventName, userStatusVerifiedHandler)
+
+	// Controllers
+	authCreateController := controllers.NewAuthCreateController(authCreateUseCase)
+	authenticateController := controllers.NewAuthenticateController(authenticateUseCase)
 
 	authControllers := controllers.AuthControllers{
-		AuthCreateController: authCreateController,
+		AuthCreateController:   authCreateController,
+		AuthenticateController: authenticateController,
 	}
 
 	app := fiber.New()
 
 	routes.SetupRoutes(app, authControllers)
 
-	log.Fatal(app.Listen(":3000"))
+	log.Fatal(app.Listen(":8000"))
 }
