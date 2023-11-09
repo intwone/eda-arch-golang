@@ -14,7 +14,7 @@ type PasswordModel struct {
 	Hash      string                        `gorm:"column:hash;type:text;not null"`
 	IsActive  bool                          `gorm:"column:is_active;type:boolean;not null"`
 	CreatedAt time.Time                     `gorm:"column:created_at;type:timestamptz(6);not null"`
-	ContactID uuid.UUID                     `gorm:"column:contact_id;foreignKey:Contact;not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ContactID uuid.UUID                     `gorm:"column:contact_id;type:uuid;foreignKey:Contact;not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Contact   ContactModel                  `gorm:"foreignKey:ContactID"`
 }
 

@@ -15,7 +15,6 @@ func NewAuthCreateController(authCreateUsecase useCase.AuthCreateUseCaseInterfac
 	c := AuthCreateController{
 		AuthCreateUseCase: authCreateUsecase,
 	}
-
 	return &c
 }
 

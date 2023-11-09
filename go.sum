@@ -1,3 +1,5 @@
+github.com/Nhanderu/brdoc v1.1.2 h1:8omuNpCC+9FLhsATdigQxFyhed7sb2TVyJLVxUFDjWg=
+github.com/Nhanderu/brdoc v1.1.2/go.mod h1:UQQw7zlNjQJFSGooYd+uq6QqLQ2G6jAHVaeGAXUgUlk=
 github.com/andybalholm/brotli v1.0.5 h1:8uQZIdzKmjc/iuPu7O2ioW48L81FgatrcpfFmiq/cCs=
 github.com/andybalholm/brotli v1.0.5/go.mod h1:fO7iG3H7G2nSZ7m0zPUDn85XEX2GTukHGRSepvi9Eig=
 github.com/bytedance/sonic v1.5.0/go.mod h1:ED5hyg4y6t3/9Ku1R6dU/4KyJ48DZ4jPhfY1O2AihPM=

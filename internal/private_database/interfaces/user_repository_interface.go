@@ -6,6 +6,7 @@ import (
 )
 
 type UserRepositoryInterface interface {
+	Create(user userEntities.UserEntity) (*userEntities.UserEntity, error)
 	Update(user userEntities.UserEntity) (*userEntities.UserEntity, error)
 	FindById(id uuid.UUID) (*userEntities.UserEntity, error)
 }

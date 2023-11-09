@@ -2,7 +2,9 @@ package repositories
 
 import (
 	"github.com/intwone/eda-arch-golang/internal/private_database/gorm/models"
+	"github.com/intwone/eda-arch-golang/internal/private_database/mappers"
 	contactEntities "github.com/intwone/eda-arch-golang/internal/public_contact/domain/entities"
+	contactValueObject "github.com/intwone/eda-arch-golang/internal/public_contact/domain/value_objects"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -17,53 +19,36 @@ func NewGORMContactRepository(db *gorm.DB) *GORMContactRepository {
 	}
 }
 
-func (r *GORMContactRepository) Update(contact contactEntities.ContactEntity) (*contactEntities.ContactEntity, error) {
-	c := models.ContactModel{
-		ID:         contact.ID,
-		Status:     contact.Status,
-		Kind:       contact.Kind,
-		Value:      contact.Value,
-		IsActive:   contact.IsActive,
-		CreatedAt:  contact.CreatedAt,
-		VerifiedAt: contact.VerifiedAt,
-		AcceptedAt: contact.AcceptedAt,
-		UpdatedAt:  contact.UpdatedAt,
-		UserID:     contact.UserID,
-	}
-	err := r.DB.Save(c).Error
-	if err != nil {
+func (r *GORMContactRepository) Create(contact contactEntities.ContactEntity) (*contactEntities.ContactEntity, error) {
+	contactModel := mappers.ContactMapperDomainToGORM(contact)
+	if err := r.UpdateManyIsActiveByUserID(contact.GetUserID()); err != nil {
 		return nil, err
 	}
-	return &contactEntities.ContactEntity{
-		ID:         uuid.UUID(contact.ID),
-		Status:     contact.Status,
-		Kind:       contact.Kind,
-		Value:      contact.Value,
-		IsActive:   contact.IsActive,
-		CreatedAt:  contact.CreatedAt,
-		VerifiedAt: contact.VerifiedAt,
-		AcceptedAt: contact.AcceptedAt,
-		UpdatedAt:  contact.UpdatedAt,
-		UserID:     uuid.UUID(contact.UserID),
-	}, nil
+	if err := r.DB.Create(contactModel).Error; err != nil {
+		return nil, err
+	}
+	contactDomain := mappers.ContactMapperGORMToDomain(contactModel)
+	return contactDomain, nil
 }
 
-func (r *GORMContactRepository) FindFirstActiveByValue(value string) (*contactEntities.ContactEntity, error) {
-	var contact models.ContactModel
-	err := r.DB.Where(&models.ContactModel{IsActive: true, Value: value}).First(&contact).Error
-	if err != nil {
+func (r *GORMContactRepository) Update(contact contactEntities.ContactEntity) (*contactEntities.ContactEntity, error) {
+	contactModel := mappers.ContactMapperDomainToGORM(contact)
+	if err := r.DB.Save(contactModel).Error; err != nil {
 		return nil, err
 	}
-	return &contactEntities.ContactEntity{
-		ID:         uuid.UUID(contact.ID),
-		Status:     contact.Status,
-		Kind:       contact.Kind,
-		Value:      contact.Value,
-		IsActive:   contact.IsActive,
-		CreatedAt:  contact.CreatedAt,
-		VerifiedAt: contact.VerifiedAt,
-		AcceptedAt: contact.AcceptedAt,
-		UpdatedAt:  contact.UpdatedAt,
-		UserID:     uuid.UUID(contact.UserID),
-	}, nil
+	contactDomain := mappers.ContactMapperGORMToDomain(contactModel)
+	return contactDomain, nil
+}
+
+func (r *GORMContactRepository) UpdateManyIsActiveByUserID(userID uuid.UUID) error {
+	return r.DB.Model(models.ContactModel{}).Where("is_active = ? and user_id = ?", true, userID).Update("is_active", false).Error
+}
+
+func (r *GORMContactRepository) FindFirstActiveByValue(value contactValueObject.Email) (*contactEntities.ContactEntity, error) {
+	var contactModel models.ContactModel
+	if err := r.DB.Where(&models.ContactModel{IsActive: true, Value: value.Value}).First(&contactModel).Error; err != nil {
+		return nil, err
+	}
+	contactDomain := mappers.ContactMapperGORMToDomain(contactModel)
+	return contactDomain, nil
 }

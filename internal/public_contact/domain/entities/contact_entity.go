@@ -3,6 +3,7 @@ package entities
 import (
 	"time"
 
+	contactValueObject "github.com/intwone/eda-arch-golang/internal/public_contact/domain/value_objects"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -26,7 +27,7 @@ type ContactEntity struct {
 	ID         uuid.UUID
 	Status     ContactStatus
 	Kind       ContactKind
-	Value      string
+	Value      contactValueObject.Email
 	IsActive   bool
 	CreatedAt  time.Time
 	VerifiedAt *time.Time
@@ -35,7 +36,7 @@ type ContactEntity struct {
 	UserID     uuid.UUID
 }
 
-func NewContactEntity(value string, kind ContactKind, userID uuid.UUID) *ContactEntity {
+func NewContactEntity(value contactValueObject.Email, kind ContactKind, userID uuid.UUID) *ContactEntity {
 	contact := ContactEntity{
 		ID:        uuid.NewV4(),
 		Status:    ContactCreated,
@@ -51,6 +52,38 @@ func NewContactEntity(value string, kind ContactKind, userID uuid.UUID) *Contact
 
 func (c *ContactEntity) GetID() uuid.UUID {
 	return c.ID
+}
+
+func (c *ContactEntity) GetStatus() ContactStatus {
+	return c.Status
+}
+
+func (c *ContactEntity) GetKind() ContactKind {
+	return c.Kind
+}
+
+func (c *ContactEntity) GetValue() contactValueObject.Email {
+	return c.Value
+}
+
+func (c *ContactEntity) GetIsActive() bool {
+	return c.IsActive
+}
+
+func (c *ContactEntity) GetCreatedAt() time.Time {
+	return c.CreatedAt
+}
+
+func (c *ContactEntity) GetVerifiedAt() *time.Time {
+	return c.VerifiedAt
+}
+
+func (c *ContactEntity) GetAcceptedAt() *time.Time {
+	return c.AcceptedAt
+}
+
+func (c *ContactEntity) GetUpdatedAt() time.Time {
+	return c.UpdatedAt
 }
 
 func (c *ContactEntity) GetUserID() uuid.UUID {

@@ -38,8 +38,20 @@ func (p *PasswordEntity) GetID() uuid.UUID {
 	return p.ID
 }
 
+func (p *PasswordEntity) GetKind() PasswordKind {
+	return p.Kind
+}
+
 func (p *PasswordEntity) GetHash() string {
 	return p.Hash
+}
+
+func (p *PasswordEntity) GetIsActive() bool {
+	return p.IsActive
+}
+
+func (p *PasswordEntity) GetCreatedAt() time.Time {
+	return p.CreatedAt
 }
 
 func (p *PasswordEntity) GetContactID() uuid.UUID {

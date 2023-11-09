@@ -7,5 +7,6 @@ import (
 
 type PasswordRepositoryInterface interface {
 	Create(password passwordEntities.PasswordEntity) (*passwordEntities.PasswordEntity, error)
+	UpdateManyIsActiveByContactID(contactID uuid.UUID) error
 	FindFirstActiveByContactID(userID uuid.UUID) (*passwordEntities.PasswordEntity, error)
 }

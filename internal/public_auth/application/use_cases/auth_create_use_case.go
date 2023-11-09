@@ -3,15 +3,19 @@ package usecases
 import (
 	repositories "github.com/intwone/eda-arch-golang/internal/private_database/interfaces"
 	hasher "github.com/intwone/eda-arch-golang/internal/private_hasher/interfaces"
+	contactValueObject "github.com/intwone/eda-arch-golang/internal/public_contact/domain/value_objects"
 	passwordEntities "github.com/intwone/eda-arch-golang/internal/public_password/domain/entities"
 	domainEvents "github.com/intwone/eda-arch-golang/internal/public_password/events"
+
 	"github.com/intwone/eda-arch-golang/internal/utils"
 	"github.com/intwone/eda-arch-golang/pkg/events"
 )
 
 type AuthCreateInput struct {
-	Email string
+	Email contactValueObject.Email
 }
+
+type AuthCreateOutput struct{}
 
 type AuthCreateUseCaseInterface interface {
 	Execute(input AuthCreateInput) error

@@ -14,18 +14,17 @@ func NewAuthenticateController(AuthenticateUsecase useCase.AuthenticateUseCaseIn
 	c := AuthenticateController{
 		AuthenticateUseCase: AuthenticateUsecase,
 	}
-
 	return &c
 }
 
 func (ac *AuthenticateController) Handle(c *fiber.Ctx) error {
-	var req inputs.AuthenticateInput
-	if err := c.BodyParser(&req); err != nil {
+	var body inputs.AuthenticateInput
+	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
 	}
-	result, err := ac.AuthenticateUseCase.Execute(useCase.AuthenticateInput{Email: req.Email, Password: req.Password})
+	result, err := ac.AuthenticateUseCase.Execute(useCase.AuthenticateInput{Email: body.Email, Password: body.Password})
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
 	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"data": result})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"data": result.Token})
 }

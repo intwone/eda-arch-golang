@@ -18,7 +18,7 @@ type ContactModel struct {
 	VerifiedAt *time.Time                    `gorm:"column:verified_at;type:timestamptz(6)"`
 	AcceptedAt *time.Time                    `gorm:"column:accepted_at;type:timestamptz(6)"`
 	UpdatedAt  time.Time                     `gorm:"column:updated_at;type:timestamptz(6);not null"`
-	UserID     uuid.UUID                     `gorm:"column:user_id;foreignKey:User;not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	UserID     uuid.UUID                     `gorm:"column:user_id;type:uuid;foreignKey:User;not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	User       UserModel                     `gorm:"foreignKey:UserID"`
 }
 

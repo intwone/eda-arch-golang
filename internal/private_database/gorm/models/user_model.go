@@ -10,7 +10,7 @@ import (
 
 type UserModel struct {
 	ID           uuid.UUID               `gorm:"column:user_id;type:uuid;primaryKey;unique;not null"`
-	Status       userEntities.UserStatus `gorm:"column:status;type:textnot null"`
+	Status       userEntities.UserStatus `gorm:"column:status;type:text;not null"`
 	CreatedAt    time.Time               `gorm:"column:created_at;type:timestamptz(6);not null"`
 	VerifiedAt   *time.Time              `gorm:"column:verified_at;type:timestamptz(6)"`
 	PendingAt    *time.Time              `gorm:"column:pending_at;type:timestamptz(6)"`

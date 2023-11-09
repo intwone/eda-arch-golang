@@ -6,16 +6,21 @@ import (
 	hasher "github.com/intwone/eda-arch-golang/internal/private_hasher/interfaces"
 	"github.com/intwone/eda-arch-golang/internal/private_shared/err"
 	domainEvents "github.com/intwone/eda-arch-golang/internal/public_auth/events"
+	contactValueObject "github.com/intwone/eda-arch-golang/internal/public_contact/domain/value_objects"
 	"github.com/intwone/eda-arch-golang/pkg/events"
 )
 
 type AuthenticateInput struct {
-	Email    string
+	Email    contactValueObject.Email
 	Password string
 }
 
+type AuthenticateOutput struct {
+	Token string
+}
+
 type AuthenticateUseCaseInterface interface {
-	Execute(input AuthenticateInput) (*string, error)
+	Execute(input AuthenticateInput) (*AuthenticateOutput, error)
 }
 
 type AuthenticateUseCase struct {
@@ -46,7 +51,7 @@ func NewAuthenticateUseCase(
 	return &uc
 }
 
-func (uc *AuthenticateUseCase) Execute(input AuthenticateInput) (*string, error) {
+func (uc *AuthenticateUseCase) Execute(input AuthenticateInput) (*AuthenticateOutput, error) {
 	contact, crErr := uc.ContactRepository.FindFirstActiveByValue(input.Email)
 	if crErr != nil {
 		return nil, crErr
@@ -61,7 +66,7 @@ func (uc *AuthenticateUseCase) Execute(input AuthenticateInput) (*string, error)
 	}
 	match := uc.Hasher.Compare(input.Password, password.GetHash())
 	if !match {
-		return nil, err.Unauthorized
+		return nil, err.UnauthorizedError
 	}
 	token, cryptErr := uc.Cryptography.Encrypt(user.GetID().String())
 	if cryptErr != nil {
@@ -70,5 +75,5 @@ func (uc *AuthenticateUseCase) Execute(input AuthenticateInput) (*string, error)
 	payload := domainEvents.NewAuthenticatedEvent(*user, *contact)
 	event := events.NewEvent(domainEvents.AuthenticatedEventName, payload)
 	uc.EventDispatcher.Dispatch(*event)
-	return token, nil
+	return &AuthenticateOutput{Token: *token}, nil
 }

@@ -13,9 +13,10 @@ type Tabler interface {
 
 func Migrate(db *gorm.DB) {
 	models := []interface{}{
-		&models.ContactModel{},
 		&models.PasswordModel{},
 		&models.UserModel{},
+		&models.PersonModel{},
+		&models.ContactModel{},
 	}
 
 	for _, model := range models {
