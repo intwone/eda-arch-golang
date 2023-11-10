@@ -17,6 +17,8 @@ func Migrate(db *gorm.DB) {
 		&models.UserModel{},
 		&models.PersonModel{},
 		&models.ContactModel{},
+		&models.PermissionModel{},
+		&models.AccountModel{},
 	}
 
 	for _, model := range models {

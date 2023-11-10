@@ -8,7 +8,7 @@ import (
 )
 
 type PersonRepositoryInterface interface {
-	Create(person personEntities.PersonEntity) (*personEntities.PersonEntity, error)
+	Upsert(person personEntities.PersonEntity) (*personEntities.PersonEntity, error)
 	UpdateManyIsActiveByUserID(userID uuid.UUID) error
 	FindFirstActiveByCpf(cpf personValueObject.Cpf) (*personEntities.PersonEntity, error)
 }

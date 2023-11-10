@@ -1,6 +1,8 @@
 package events
 
 import (
+	"time"
+
 	contactValueObject "github.com/intwone/eda-arch-golang/internal/public_contact/domain/value_objects"
 	personValueObject "github.com/intwone/eda-arch-golang/internal/public_person/domain/value_objects"
 	uuid "github.com/satori/go.uuid"
@@ -13,15 +15,20 @@ var (
 type UserCreatedEvent struct {
 	email      contactValueObject.Email
 	cpf        personValueObject.Cpf
+	birthdate  time.Time
 	personName string
 	userID     uuid.UUID
+	companyID  uuid.UUID
 }
 
-func NewUserCreatedEvent(userID uuid.UUID, email contactValueObject.Email, cpf personValueObject.Cpf) *UserCreatedEvent {
+func NewUserCreatedEvent(email contactValueObject.Email, cpf personValueObject.Cpf, birthdate time.Time, personName string, userID uuid.UUID, companyID uuid.UUID) *UserCreatedEvent {
 	p := UserCreatedEvent{
-		userID: userID,
-		email:  email,
-		cpf:    cpf,
+		email:      email,
+		cpf:        cpf,
+		birthdate:  birthdate,
+		personName: personName,
+		userID:     userID,
+		companyID:  companyID,
 	}
 	return &p
 }
@@ -42,6 +49,14 @@ func (e *UserCreatedEvent) GetPersonName() string {
 	return e.personName
 }
 
+func (e *UserCreatedEvent) GetBirthdate() time.Time {
+	return e.birthdate
+}
+
 func (e *UserCreatedEvent) GetUserID() uuid.UUID {
 	return e.userID
+}
+
+func (e *UserCreatedEvent) GetCompanyID() uuid.UUID {
+	return e.companyID
 }

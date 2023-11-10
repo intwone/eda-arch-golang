@@ -19,9 +19,9 @@ func NewGORMPersonRepository(db *gorm.DB) *GORMPersonRepository {
 	}
 }
 
-func (r *GORMPersonRepository) Create(person personEntities.PersonEntity) (*personEntities.PersonEntity, error) {
+func (r *GORMPersonRepository) Upsert(person personEntities.PersonEntity) (*personEntities.PersonEntity, error) {
 	personModel := mappers.PersonMapperDomainToGORM(person)
-	if err := r.UpdateManyIsActiveByUsertID(person.GetUserID()); err != nil {
+	if err := r.UpdateManyIsActiveByUserID(person.GetUserID()); err != nil {
 		return nil, err
 	}
 	if err := r.DB.Create(personModel).Error; err != nil {
@@ -29,8 +29,7 @@ func (r *GORMPersonRepository) Create(person personEntities.PersonEntity) (*pers
 	}
 	return &person, nil
 }
-
-func (r *GORMPersonRepository) UpdateManyIsActiveByUsertID(userID uuid.UUID) error {
+func (r *GORMPersonRepository) UpdateManyIsActiveByUserID(userID uuid.UUID) error {
 	return r.DB.Model(models.PersonModel{}).Where("is_active = ? and user_id = ?", true, userID).Update("is_active", false).Error
 }
 

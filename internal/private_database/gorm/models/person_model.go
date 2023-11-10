@@ -13,7 +13,7 @@ type PersonModel struct {
 	Status             personEntities.PersonStatus `gorm:"column:status;type:text;not null"`
 	Name               string                      `gorm:"column:name;type:text;not null"`
 	Cpf                string                      `gorm:"column:cpf;type:text;not null"`
-	LegalName          *string                     `gorm:"column:legal_name;type:text;not null"`
+	LegalName          *string                     `gorm:"column:legal_name;type:text"`
 	DefaultProbability *int8                       `gorm:"column:default_probability;type:integer"`
 	DefaultScore       *int8                       `gorm:"column:default_score;type:integer"`
 	DefaultDebits      *int8                       `gorm:"column:default_debits;type:integer"`

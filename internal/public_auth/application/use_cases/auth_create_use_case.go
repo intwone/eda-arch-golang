@@ -49,7 +49,7 @@ func (uc *AuthCreateUseCase) Execute(input AuthCreateInput) error {
 		return hErr
 	}
 	password := passwordEntities.NewPasswordEntity(passwordEntities.PasswordKind(contact.Kind), *hash, contact.GetID())
-	_, prErr := uc.PasswordRepository.Create(*password)
+	_, prErr := uc.PasswordRepository.Upsert(*password)
 	if prErr != nil {
 		return prErr
 	}

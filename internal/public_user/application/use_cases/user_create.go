@@ -1,6 +1,8 @@
 package usecases
 
 import (
+	"time"
+
 	repositories "github.com/intwone/eda-arch-golang/internal/private_database/interfaces"
 	"github.com/intwone/eda-arch-golang/internal/private_shared/err"
 	contactValueObject "github.com/intwone/eda-arch-golang/internal/public_contact/domain/value_objects"
@@ -8,23 +10,25 @@ import (
 	userEntities "github.com/intwone/eda-arch-golang/internal/public_user/domain/entities"
 	domainEvents "github.com/intwone/eda-arch-golang/internal/public_user/events"
 	"github.com/intwone/eda-arch-golang/pkg/events"
+	uuid "github.com/satori/go.uuid"
 )
 
-type CreateUserInput struct {
-	Name  string
-	Email contactValueObject.Email
-	Cpf   personValueObject.Cpf
+type UserCreateInput struct {
+	Name      string
+	Email     contactValueObject.Email
+	Cpf       personValueObject.Cpf
+	Birthdate string
 }
 
-type CreateUserOutput struct {
+type UserCreateOutput struct {
 	User userEntities.UserEntity
 }
 
-type CreateUserUseCaseInterface interface {
-	Execute(input CreateUserInput) (*CreateUserOutput, error)
+type UserCreateUseCaseInterface interface {
+	Execute(input UserCreateInput) (*UserCreateOutput, error)
 }
 
-type CreateUserUseCase struct {
+type UserCreateUseCase struct {
 	EventDispatcher   events.EventDispatcherInterface
 	UserRepository    repositories.UserRepositoryInterface
 	ContactRepository repositories.ContactRepositoryInterface
@@ -36,8 +40,8 @@ func NewCreateUserUseCase(
 	ur repositories.UserRepositoryInterface,
 	cr repositories.ContactRepositoryInterface,
 	pr repositories.PersonRepositoryInterface,
-) *CreateUserUseCase {
-	uc := CreateUserUseCase{
+) *UserCreateUseCase {
+	uc := UserCreateUseCase{
 		EventDispatcher:   ed,
 		UserRepository:    ur,
 		ContactRepository: cr,
@@ -46,18 +50,12 @@ func NewCreateUserUseCase(
 	return &uc
 }
 
-func (uc *CreateUserUseCase) Execute(input CreateUserInput) (*CreateUserOutput, error) {
-	contact, crErr := uc.ContactRepository.FindFirstActiveByValue(input.Email)
-	if crErr != nil {
-		return nil, crErr
-	}
+func (uc *UserCreateUseCase) Execute(input UserCreateInput) (*UserCreateOutput, error) {
+	contact, _ := uc.ContactRepository.FindFirstActiveByValue(input.Email)
 	if contact != nil {
 		return nil, err.NewResourceAlreadyTakenError("contact")
 	}
-	person, prErr := uc.PersonRepository.FindFirstActiveByCpf(input.Cpf)
-	if prErr != nil {
-		return nil, prErr
-	}
+	person, _ := uc.PersonRepository.FindFirstActiveByCpf(input.Cpf)
 	if person != nil {
 		return nil, err.NewResourceAlreadyTakenError("person")
 	}
@@ -66,8 +64,13 @@ func (uc *CreateUserUseCase) Execute(input CreateUserInput) (*CreateUserOutput, 
 	if urErr != nil {
 		return nil, urErr
 	}
-	payload := domainEvents.NewUserCreatedEvent(user.GetID(), input.Email, input.Cpf)
+	birthdate, pErr := time.Parse("2006/01/02", input.Birthdate)
+	if pErr != nil {
+		return nil, pErr
+	}
+	companyID, _ := uuid.FromString("df708e7a-f455-43c4-89b0-d5c50e6f04be") // my-company
+	payload := domainEvents.NewUserCreatedEvent(input.Email, input.Cpf, birthdate, input.Name, user.GetID(), companyID)
 	event := events.NewEvent(domainEvents.UserCreatedEventName, payload)
 	uc.EventDispatcher.Dispatch(*event)
-	return &CreateUserOutput{User: *user}, nil
+	return &UserCreateOutput{User: *user}, nil
 }

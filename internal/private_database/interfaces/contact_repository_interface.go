@@ -7,7 +7,7 @@ import (
 )
 
 type ContactRepositoryInterface interface {
-	Create(contact contactEntities.ContactEntity) (*contactEntities.ContactEntity, error)
+	Upsert(contact contactEntities.ContactEntity) (*contactEntities.ContactEntity, error)
 	Update(contact contactEntities.ContactEntity) (*contactEntities.ContactEntity, error)
 	UpdateManyIsActiveByUserID(userID uuid.UUID) error
 	FindFirstActiveByValue(value contactValueObject.Email) (*contactEntities.ContactEntity, error)

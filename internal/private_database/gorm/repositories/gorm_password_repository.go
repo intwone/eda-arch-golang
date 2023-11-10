@@ -18,7 +18,7 @@ func NewGORMPasswordRepository(db *gorm.DB) *GORMPasswordRepository {
 	}
 }
 
-func (r *GORMPasswordRepository) Create(password passwordEntities.PasswordEntity) (*passwordEntities.PasswordEntity, error) {
+func (r *GORMPasswordRepository) Upsert(password passwordEntities.PasswordEntity) (*passwordEntities.PasswordEntity, error) {
 	passwordModel := mappers.PasswordMapperDomainToGORM(password)
 	if err := r.UpdateManyIsActiveByContactID(password.GetContactID()); err != nil {
 		return nil, err

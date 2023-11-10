@@ -25,7 +25,7 @@ func (h *ContactCreateHandler) Handle(event events.Event, wg *sync.WaitGroup) {
 		email := payload.GetEmail()
 		userID := payload.GetUserID()
 		contact := entities.NewContactEntity(email, entities.ContactEmail, userID)
-		h.ContactRepository.Create(*contact)
+		h.ContactRepository.Upsert(*contact)
 	}
 	wg.Done()
 }

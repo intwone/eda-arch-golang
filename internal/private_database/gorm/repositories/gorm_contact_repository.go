@@ -19,7 +19,7 @@ func NewGORMContactRepository(db *gorm.DB) *GORMContactRepository {
 	}
 }
 
-func (r *GORMContactRepository) Create(contact contactEntities.ContactEntity) (*contactEntities.ContactEntity, error) {
+func (r *GORMContactRepository) Upsert(contact contactEntities.ContactEntity) (*contactEntities.ContactEntity, error) {
 	contactModel := mappers.ContactMapperDomainToGORM(contact)
 	if err := r.UpdateManyIsActiveByUserID(contact.GetUserID()); err != nil {
 		return nil, err

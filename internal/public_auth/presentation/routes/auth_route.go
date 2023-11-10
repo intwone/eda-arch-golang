@@ -5,8 +5,8 @@ import (
 	"github.com/intwone/eda-arch-golang/internal/public_auth/presentation/controllers"
 )
 
-func SetupRoutes(a *fiber.App, c controllers.AuthControllers) {
-	group := a.Group("/api/users")
-	group.Post("/auth-create", c.AuthCreateController.Handle)
+func SetupAuthRoutes(a *fiber.App, c controllers.AuthControllers) {
+	group := a.Group("/api/auth")
+	group.Post("/create", c.AuthCreateController.Handle)
 	group.Post("/authenticate", c.AuthenticateController.Handle)
 }

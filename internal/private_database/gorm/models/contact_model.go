@@ -30,6 +30,6 @@ func MigrateContact(db *gorm.DB) error {
 	return nil
 }
 
-func (ContactModel) TableName() string {
+func (AccountModel) TableName() string {
 	return "contact"
 }

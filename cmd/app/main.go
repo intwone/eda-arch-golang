@@ -10,13 +10,20 @@ import (
 	"github.com/intwone/eda-arch-golang/internal/private_database/gorm/repositories"
 	hasher "github.com/intwone/eda-arch-golang/internal/private_hasher/services"
 	messengerHandlers "github.com/intwone/eda-arch-golang/internal/private_messenger/handlers"
-	useCase "github.com/intwone/eda-arch-golang/internal/public_auth/application/use_cases"
+	accountHandlers "github.com/intwone/eda-arch-golang/internal/public_account/handlers"
+	authUseCase "github.com/intwone/eda-arch-golang/internal/public_auth/application/use_cases"
 	authDomainEvents "github.com/intwone/eda-arch-golang/internal/public_auth/events"
-	controllers "github.com/intwone/eda-arch-golang/internal/public_auth/presentation/controllers"
-	"github.com/intwone/eda-arch-golang/internal/public_auth/presentation/routes"
+	authControllers "github.com/intwone/eda-arch-golang/internal/public_auth/presentation/controllers"
+	authRoute "github.com/intwone/eda-arch-golang/internal/public_auth/presentation/routes"
 	contactHandlers "github.com/intwone/eda-arch-golang/internal/public_contact/handlers"
 	passwordDomainEvents "github.com/intwone/eda-arch-golang/internal/public_password/events"
+	permissionHandlers "github.com/intwone/eda-arch-golang/internal/public_permission/handlers"
+	personHandlers "github.com/intwone/eda-arch-golang/internal/public_person/handlers"
+	userUseCase "github.com/intwone/eda-arch-golang/internal/public_user/application/use_cases"
+	userDomainEvents "github.com/intwone/eda-arch-golang/internal/public_user/events"
 	userHandlers "github.com/intwone/eda-arch-golang/internal/public_user/handlers"
+	userControllers "github.com/intwone/eda-arch-golang/internal/public_user/presentation/controllers"
+	userRoute "github.com/intwone/eda-arch-golang/internal/public_user/presentation/routes"
 	"github.com/intwone/eda-arch-golang/pkg/events"
 )
 
@@ -46,12 +53,16 @@ func main() {
 	contactRepository := repositories.NewGORMContactRepository(db)
 	passwordRepository := repositories.NewGORMPasswordRepository(db)
 	userRepository := repositories.NewGORMUserRepository(db)
-	bcryptHasher := hasher.NewBcryptHasher()
+	permissionRepository := repositories.NewGORMPermissionRepository(db)
+	personRepository := repositories.NewGORMPersonRepository(db)
+	accountRepository := repositories.NewGORMAccountRepository(db)
 	jwtCryptography := cryptography.NewJWTCryptography(env.JWT_SECRET)
+	bcryptHasher := hasher.NewBcryptHasher()
 
 	// UseCases
-	authCreateUseCase := useCase.NewAuthCreateUseCase(eventDispatcher, contactRepository, passwordRepository, bcryptHasher)
-	authenticateUseCase := useCase.NewAuthenticateUseCase(eventDispatcher, contactRepository, passwordRepository, userRepository, jwtCryptography, bcryptHasher)
+	authCreateUseCase := authUseCase.NewAuthCreateUseCase(eventDispatcher, contactRepository, passwordRepository, bcryptHasher)
+	authenticateUseCase := authUseCase.NewAuthenticateUseCase(eventDispatcher, contactRepository, passwordRepository, userRepository, jwtCryptography, bcryptHasher)
+	userCreateUseCase := userUseCase.NewCreateUserUseCase(eventDispatcher, userRepository, contactRepository, personRepository)
 
 	// Events
 	passwordCreatedEmailDispatchHandler := messengerHandlers.NewPasswordCreatedEmailDispatchHandler()
@@ -63,18 +74,33 @@ func main() {
 	userStatusVerifiedHandler := userHandlers.NewUserStatusVerifiedHandler(userRepository)
 	eventDispatcher.Register(authDomainEvents.AuthenticatedEventName, userStatusVerifiedHandler)
 
-	// Controllers
-	authCreateController := controllers.NewAuthCreateController(authCreateUseCase)
-	authenticateController := controllers.NewAuthenticateController(authenticateUseCase)
+	personCreatedHandler := personHandlers.NewPersonCreateHandler(personRepository)
+	eventDispatcher.Register(userDomainEvents.UserCreatedEventName, personCreatedHandler)
 
-	authControllers := controllers.AuthControllers{
+	permissionCreateHandler := permissionHandlers.NewPermissionCreateHandler(permissionRepository)
+	eventDispatcher.Register(userDomainEvents.UserCreatedEventName, permissionCreateHandler)
+
+	accountCreateHandler := accountHandlers.NewAccountCreateHandler(accountRepository)
+	eventDispatcher.Register(userDomainEvents.UserCreatedEventName, accountCreateHandler)
+
+	// Controllers
+	authCreateController := authControllers.NewAuthCreateController(authCreateUseCase)
+	authenticateController := authControllers.NewAuthenticateController(authenticateUseCase)
+	userCreateController := userControllers.NewUserCreateController(userCreateUseCase)
+
+	authControllers := authControllers.AuthControllers{
 		AuthCreateController:   authCreateController,
 		AuthenticateController: authenticateController,
 	}
 
+	userControllers := userControllers.UserControllers{
+		UserCreateController: userCreateController,
+	}
+
 	app := fiber.New()
 
-	routes.SetupRoutes(app, authControllers)
+	authRoute.SetupAuthRoutes(app, authControllers)
+	userRoute.SetupUserRoutes(app, userControllers)
 
 	log.Fatal(app.Listen(":8000"))
 }
